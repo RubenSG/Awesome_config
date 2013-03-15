@@ -113,13 +113,13 @@ myawesomemenu = {
 }
 
 myArchmenu = {
-   { "GnomeTerm", "gnome-terminal" },
-   { "Irssi", "gnome-terminal -e irssi"},
-   { "Gedit", "gedit" },
-   { "BlueFish", "bluefish-unstable" },
-   { "AlsaMixer", "Eterm -e alsamixer" },
-   { "Thunar", "thunar" },
-   { "VLC", "vlc" },
+   { "Nautilus", "nautilus" },
+   { "Thunar", "thunar"},
+   { "Gedit", "gedit"},
+   { "BlueFish", "bluefish-unstable"},
+   { "AlsaMixer", "Eterm -e alsamixer"},
+   { "Exaile", "exaile"},
+   { "VLC", "vlc"},
    { "Audacious2", "audacious2"}
 }
 
@@ -407,7 +407,17 @@ awful.rules.rules = {
       properties = {tag = tags[1][1] } },
     --}}}}
     --{{{{ Editor de textos libreoffice escritorio 2 Editor.
-    { rule = { class = "Oosplash" },
+    { rule = { class = "VCLSalFrame" },
+      properties = {tag = tags[1][2] } },
+    { rule = { class = "libreoffice-startcenter", name = "LibreOffice" },
+      properties = {tag = tags[1][2] } },
+    { rule = { class = "libreoffice-writer", name = "LibreOffice Writer" },
+      properties = {tag = tags[1][2] } },
+    { rule = { class = "libreoffice-calc", name = "LibreOffice Calc" },
+      properties = {tag = tags[1][2] } },
+    { rule = { class = "libreoffice-impress", name = "LibreOffice Impress" },
+      properties = {tag = tags[1][2] } },
+    { rule = { class = "Evince" },
       properties = {tag = tags[1][2] } },
       --}}}}
     --{{{{ Navegadores de internet y correo web escritorio 3 Navegador.
@@ -424,7 +434,9 @@ awful.rules.rules = {
     --}}}}
     --{{{{ Editores de imagenes escritorio 5 imagen.
     { rule = { class = "gimp-2.8" },
-      properties = { floating = true, tag = tags[1][5] } },
+      properties = {tag =tags[1][5] } },
+    { rule = { name = "Programa de manipulación de imágenes de GNU" },
+      properties = {tag =tags[1][5] } },
     { rule = { class = "hp-toolbox" },
       properties = { floating = true, tag = tags[1][5] } },
     { rule = { class = "xsane" },
@@ -447,6 +459,10 @@ awful.rules.rules = {
       properties = { floating = true, tag = tags[1][7] } },
     { rule = { class = "vlc" },
       properties = { floating = true, tag = tags[1][7] } },
+    { rule = { class = "Nautilus" },
+      properties = {tag = tags[1][7] } },
+    { rule = { class = "Thunar" },
+      properties = {tag = tags[1][7] } },
     --}}}}
 
 
@@ -497,13 +513,15 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
   awful.util.spawn_with_shell("pgrep -u $USER -x " .. findme .. " > /dev/null || (" .. cmd .. ")")
 end
 
-run_once("conky")
-run_once("wicd-gtk")
-run_once("parcellite")
-run_once("dropboxd")
-run_once("gnome-sound-applet")
-run_once("sytem-config-printer-applet")
+run_once("conky") --Monitorizar el Systema
+run_once("wicd-gtk") --administrador de Redes
+run_once("parcellite") --Portapapeles Copy/Paste
+run_once("dropboxd") --Sincronización de carpetas
+run_once("gnome-sound-applet") --Sonido
+run_once("sytem-config-printer-applet") --Impresora
+run_once("udisksvm") --Automonta usb
 
+-- Otra manera de arrancar programas al inicio de Awesome
 --awful.util.spawn_with_shell("conky")
 --awful.util.spawn_with_shell("gnome-sound-applet")
 --awful.util.spawn_with_shell("sytem-config-printer-applet")
