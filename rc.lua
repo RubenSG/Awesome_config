@@ -20,7 +20,7 @@ local menubar = require("menubar")
 local scratch = require("scratch")
 
 
--- {{{ Error handling --Si ocurre algún error al inicio muestra un cartelito--
+-- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
 if awesome.startup_errors then
@@ -29,7 +29,7 @@ if awesome.startup_errors then
                      text = awesome.startup_errors })
 end
 
--- Handle runtime errors after startup -- Errores despues del arranque
+-- Handle runtime errors after startup
 do
     local in_error = false
     awesome.connect_signal("debug::error", function (err)
@@ -51,7 +51,8 @@ beautiful.init("/home/ruben/.config/awesome/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "xterm"
-editor = os.getenv("EDITOR") or "gedit"
+editor = os.getenv("EDITOR") or "nano"
+editor_gtk = "medit"
 editor_cmd = editor
 
 -- Default modkey.
@@ -106,42 +107,53 @@ end
 -- {{{ Menu
 -- Create a laucher widget and a main menu
 myawesomemenu = {
-   { "manual", "xterm -e man awesome" },
+   { "manual", terminal .. " -e man awesome" },
    { "edit config", editor_cmd .. " " .. awesome.conffile }
 }
 
 myArchmenu = {
+   { "Htop", terminal .. " -e htop" },
    { "SpaceFm", "spacefm" },
-   { "Thunar", "thunar"},
-   { "Siblime", "subl"},
-   { "Themes Gtk", "lxappearance"},
-   { "Hp-toolbox", "hp-toolbox"},
-   { "NetBeans 7.2", "/home/ruben/netbeans-7.2/bin/netbeans"}
+   { "Thunar", "thunar" },
+   { "Siblime", "subl" },
+   { "Medit", "medit" },
+   { "Themes Gtk", "lxappearance" },
+   { "Hp-toolbox", "hp-toolbox" }
 }
 
-myred ={
+myweb = {
     {"Firefox", "firefox"},
     {"chromium", "chromium-browser"},
-    {"Incognito Window", "chromium --incognito" },
+    {"Incognito Web", "chromium --incognito" },
     {"Pidgin", "Pidgin"},
     {"Skype", "skype"},
     {"Thunderbird", "thunderbird"},
-    {"Qbittorent", "qbittorent"},
-    {"Wifite", terminal .. " sudo wifite" },
+    {"Qbittorent", "qbittorent"}
+}
+
+myred ={
+    {"Wifite", terminal .. " -e sudo wifite" },
     {"Zenmap", "gksu zenmap"},
     {"wireshark", "gksu wireshark"},
-    {"Metasploit", "xterm msfconsole"},
-    {"Gerix wifi", "gksu gerix"},
-    {"Armitage", "armitage"}
+    {"Metasploit", terminal .. " -e msfconsole"},
+    {"Gerix wifi", "gksu gerix" },
+    {"Consumo Eth0 Red", terminal .." -e sudo nethogs enp2s0" },
+    {"Consumo Wlan0 Red", terminal .." -e sudo nethogs wlp4s1" },
+    {"WepCrak", "gksu wepcrack" },
+    {"Iptraf", terminal .. " -e sudo iptraf-ng" },
+    {"Armitage", "gksu armitage"}
 }
+
 Multimedia ={
-	{ "VLC", "vlc"},
-	{ "AlsaMixer", terminal .. "alsamixer"},
-	{ "Exaile", "exaile"},
-	{ "Sound Convert", "soundconverter"},
-	{ "Audacious2", "audacious2"},
-	{ "Avidemux", "avidemux2_gtk"}
+	{ "VLC", "vlc" },
+	{ "AlsaMixer", terminal .. "-e alsamixer" },
+	{ "Exaile", "exaile" },
+	{ "Sound Convert", "soundconverter" },
+	{ "Audacious2", "audacious2" },
+	{ "transcode", "transcode" },
+	{ "Avidemux", "avidemux2_gtk" }
 }
+
 myexit = {
     { "Suspender", "systemctl suspend" },
     { "Sleep", "systemctl hybrid-sleep" },
@@ -153,6 +165,7 @@ myexit = {
 
 mymainmenu = awful.menu({ items = { { "Arch linux", myArchmenu, beautiful.awesome_icon },
                                     { "Red", myred, beautiful.awesome_icon4 },
+				    { "Web", myweb },
 				    { "Multimedia", Multimedia },
                                     { "awesome", myawesomemenu, beautiful.awesome_icon0 },
                                     { "Exit", myexit },
@@ -513,7 +526,10 @@ awful.rules.rules = {
     { rule = { class = "Thunar" },
       properties = {tag = tags[1][7] } },
     --}}}}
-
+    --{{{ Programas de musica
+    { rule = { class = "Exile" },
+      properties = {tag = tags[1][9] } },
+    --}}}
 }
 -- }}}
 
@@ -653,13 +669,13 @@ mystatebar:set_widget(mb_layout)
 --{{{ Programas al inicio.
 --No ejecuta dos veces los programas con el mismo nombre
 
- function run_once(cmd)
-  findme = cmd
-  firstspace = cmd:find(" ")
+ function run_once(pro)
+  findme = pro
+  firstspace = pro:find(" ")
   if firstspace then
-    findme = cmd:sub(0, firstspace-1)
+    findme = pro:sub(0, firstspace-1)
   end
-  awful.util.spawn_with_shell("pgrep -u $USER -x " .. findme .. " > /dev/null || (" .. cmd .. ")")
+  awful.util.spawn_with_shell("pgrep -u $USER -x " .. findme .. " > /dev/null || (" .. pro .. ")")
 end
 
 --run_once("conky")    --{{{ Monitoreo de la activida del PC }}}
