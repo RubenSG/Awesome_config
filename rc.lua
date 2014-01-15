@@ -1,6 +1,3 @@
---Archivo de configuración de Awesome
---Instalado en Arch Linux X86_64
-
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
@@ -16,8 +13,10 @@ local beautiful = require("beautiful")
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
-      vicious = require("vicious")
+local vicious = require("vicious")
 local scratch = require("scratch")
+--local drop = require("scratchdrop")
+local lain = require("lain")
 
 
 -- {{{ Error handling
@@ -45,15 +44,59 @@ do
 end
 -- }}}
 
--- {{{ Variable definitions
+--{{{
+-- Configuración 
+os.setlocale("es_ES.UTF-8")
+
+--}}}
+
+-- {{{ Theme
 -- Themes define colours, icons, and wallpapers
+
 beautiful.init("/home/ruben/.config/awesome/theme.lua")
 
--- This is used later as the default terminal and editor to run.
+--}}}
+
+
+--{{{ Programas al inicio.
+--No ejecuta dos veces los programas con el mismo nombre
+
+function run_once(cmd)
+  findme = cmd
+  firstspace = cmd:find(" ")
+  if firstspace then
+     findme = cmd:sub(0, firstspace-1)
+  end
+  awful.util.spawn_with_shell("pgrep -u $USER -x " .. findme .. " > /dev/null || (" .. cmd .. ")")
+  
+end
+
+--run_once("conky")    --{{{ Monitoreo de la activida del PC }}}
+run_once("xfce4-clipman") --{{{ Gestor de Portepapeles }}}
+run_once("dropboxd")   --{{{ Sincronización de disco Dropbox}}}
+--run_once("udisksvm")   --{{{ Automontado de particiones }}}
+--run_once("orage")      --{{{ Calendario }}}
+--run_once("retrovol")   --{{{ Control de Volumen }}}
+--run_once("xscreensaver") --{{{ Salvapantallas }}}
+run_once("weatherboy -l 765099 -u c -a") --{{{ El  tiempo en ponferrada León}}}
+run_once("xcompmgr -c -C -t-5 -l-5 -r4.2 -o.55 &") --{{{transparencias}}}
+run_once("numlockx on") --{{{Teclado numerico activo}}}
+run_once("synapse")--{{{Lanzador de aplicaionescon Ctrl-space}}}
+
+--}}}
+
+
+
+--{{{ Asignación 
+
 terminal = "xterm"
-editor = os.getenv("EDITOR") or "nano"
+editor = os.getenv("EDITOR") or "vim"
 editor_gtk = "medit"
 editor_cmd = editor
+gui_editor = "/opt/sublime-text/sublime_text"
+
+--}}}
+
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -93,9 +136,9 @@ end
 -- Defina los escritorios "tags" les pone un nombre "names" y los layouts que seria el comportamiento de los escritorios.
 
 tags = {
-  names = { "1Terminal", "2Editor", "3Navegador", "4PHP", "5Imagen", "6Descargas", "7Misc", "8VirtualMachin", "9Musica",
+  names = { "1 Terminal", "2 Editor", "3 Navegador", "4 PHP", "5 Imagen", "6 Descargas", "7 Misc", "8 VirtualMachin", "9 Musica",
   },
-  layout = { layouts[2], layouts[9], layouts[2], layouts[1],layouts[9], layouts[2], layouts[1], layouts[9], layouts[9],
+  layout = { layouts[5], layouts[9], layouts[2], layouts[1],layouts[9], layouts[2], layouts[1], layouts[9], layouts[9],
 }}
  
 for s = 1, screen.count() do
@@ -115,9 +158,14 @@ myArchmenu = {
    { "Htop", terminal .. " -e htop" },
    { "SpaceFm", "spacefm" },
    { "Thunar", "thunar" },
-   { "Siblime", "subl" },
+   { "Calculadora", "galculator" },
+   { "Siblime", gui_editor },
    { "Medit", "medit" },
    { "Themes Gtk", "lxappearance" },
+   { "Gparted", "gksu gparted" },
+   { "AcetoneIso", "acetoneiso" },
+   { "EnCript", "gencfs" },
+   { "Xfburn", "xfburn" },
    { "Hp-toolbox", "hp-toolbox" }
 }
 
@@ -125,6 +173,7 @@ myweb = {
     {"Firefox", "firefox"},
     {"chromium", "chromium-browser"},
     {"Incognito Web", "chromium --incognito" },
+    {"dwb web","dwb" },
     {"Pidgin", "Pidgin"},
     {"Skype", "skype"},
     {"Thunderbird", "thunderbird"},
@@ -137,9 +186,10 @@ myred ={
     {"wireshark", "gksu wireshark"},
     {"Metasploit", terminal .. " -e msfconsole"},
     {"Gerix wifi", "gksu gerix" },
-    {"Consumo Eth0 Red", terminal .." -e sudo nethogs enp2s0" },
-    {"Consumo Wlan0 Red", terminal .." -e sudo nethogs wlp4s1" },
+    {"Nethogs Eth0 Red", terminal .." -e sudo nethogs enp2s0" },
+    {"Nethogs Wlan0 Red", terminal .." -e sudo nethogs wlp4s1" },
     {"WepCrak", "gksu wepcrack" },
+    {"NXclient", "nxclient" },
     {"Iptraf", terminal .. " -e sudo iptraf-ng" },
     {"Armitage", "gksu armitage"}
 }
@@ -151,7 +201,16 @@ Multimedia ={
 	{ "Sound Convert", "soundconverter" },
 	{ "Audacious2", "audacious2" },
 	{ "transcode", "transcode" },
+	{ "Mocp Terminal", terminal .." -e mocp -m /1TG/Musica --theme darkdot_theme" },
 	{ "Avidemux", "avidemux2_gtk" }
+}
+
+myImagen ={
+	{ "Gimp", "gimp"},
+	{ "RawStudio", "rawstudio"},
+	{ "Inkscape", "inkscape"},
+	{ "HDR-luminance", "luminance-hdr"},
+	{ "Darktable", "darktable"}
 }
 
 myexit = {
@@ -167,6 +226,7 @@ mymainmenu = awful.menu({ items = { { "Arch linux", myArchmenu, beautiful.awesom
                                     { "Red", myred, beautiful.awesome_icon4 },
 				    { "Web", myweb },
 				    { "Multimedia", Multimedia },
+				    { "Imagenes", myImagen },
                                     { "awesome", myawesomemenu, beautiful.awesome_icon0 },
                                     { "Exit", myexit },
                                     { "open terminal", terminal }                                    
@@ -175,6 +235,9 @@ mymainmenu = awful.menu({ items = { { "Arch linux", myArchmenu, beautiful.awesom
 
 mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
                                      menu = mymainmenu })
+
+--}}}
+
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
@@ -188,13 +251,34 @@ right_separator = wibox.widget.textbox(']', beautiful.awesome_icon)
 
 -- {{{ Wibox
 
---{{{ Tiempo de con el equipo encendido
-  uptimewidget = wibox.widget.textbox()
-vicious.register(uptimewidget, vicious.widgets.uptime, '<span color="#8b8970">$1 Dias $2 Horas</span>')
+-- {{{ CLOCK - RELOJ
+clockwidget = wibox.widget.textbox()
+vicious.register(clockwidget, vicious.widgets.date, ' <span color="#b0e2ff"> %H:%M - %d/%m/20%y </span> ')
+-- }}}
+
+--{{{ ALSA volume bar
+
+volicon = wibox.widget.imagebox(beautiful.widget_vol)
+volumewidget = lain.widgets.alsa({
+    settings = function()
+        if volume_now.status == "off" then
+            volicon:set_image(beautiful.widget_vol_mute)
+        elseif tonumber(volume_now.level) == 0 then
+            volicon:set_image(beautiful.widget_vol_no)
+        elseif tonumber(volume_now.level) <= 50 then
+            volicon:set_image(beautiful.widget_vol_low)
+        else
+           volicon:set_image(beautiful.widget_vol)
+        end
+
+        widget:set_text(" " .. volume_now.level .. "% ")
+    end
+})
+--}}}
 
 --}}}
 
--- Create a wibox for each screen and add it
+--{{{ Barra principal superior  Create a wibox for each screen and add it
 mywibox = {}
 mypromptbox = {}
 mylayoutbox = {}
@@ -272,7 +356,11 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
     if s == 1 then right_layout:add(left_separator) end
-    right_layout:add(uptimewidget)
+    right_layout:add(volicon)
+    right_layout:add(volumewidget)
+    right_layout:add(right_separator)
+    right_layout:add(left_separator)
+    right_layout:add(clockwidget)
     right_layout:add(right_separator)
     right_layout:add(left_separator)
     right_layout:add(wibox.widget.systray())
@@ -285,14 +373,9 @@ for s = 1, screen.count() do
     layout:set_left(left_layout)
     layout:set_middle(mytasklist[s])
     layout:set_right(right_layout)
-
     mywibox[s]:set_widget(layout)
 end
 -- }}}
-
-
-
-
 
 -- {{{ Mouse bindings
 root.buttons(awful.util.table.join(
@@ -334,7 +417,7 @@ globalkeys = awful.util.table.join(
             end
         end),
 
-    -- Standard program
+    -- Convinación de teclado para lanzar aplicaciones Standard program
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
@@ -359,9 +442,9 @@ globalkeys = awful.util.table.join(
                   mypromptbox[mouse.screen].widget,
                   awful.util.eval, nil,
                   awful.util.getdir("cache") .. "/history_eval")
-              end),
+              end)
     -- Menubar
-    awful.key({ modkey }, "p", function() menubar.show() end)
+    --awful.key({ modkey }, "p", function() menubar.show() end)
 )
 
 clientkeys = awful.util.table.join(
@@ -433,7 +516,7 @@ root.keys(globalkeys)
 -- }}}
 
 
--- {{{ Rules
+-- {{{ Reglas para la ejecución de programas
 awful.rules.rules = {
     -- All clients will match this rule.
     { rule = { },
@@ -477,6 +560,8 @@ awful.rules.rules = {
     --{{{{ Navegadores de internet y correo web escritorio 3 Navegador.
     { rule = { class = "Firefox" },
       properties = { tag = tags[1][3] } },
+    { rule = { class = "dwb" },
+      properties = { tag = tags[1][3] } },
     { rule = { class = "chromium" },
       properties = { tag = tags[1][3] } },
     { rule = { class = "Thunderbird" },
@@ -489,7 +574,7 @@ awful.rules.rules = {
       properties = {tag = tags[1][4] } },
     { rule = { class = "gedit" },
       properties = {tag = tags[1][4] } },
-    { rule = { class = "medit" },
+    { rule = { class = "medit", name = "medit" },
       properties = {tag = tags[1][4] } },
     --}}}}
     --{{{{ Editores de imagenes escritorio 5 imagen.
@@ -500,6 +585,8 @@ awful.rules.rules = {
     { rule = { class = "hp-toolbox" },
      properties = { floating = true, tag = tags[1][5]} },
     { rule = { class = "xsane" },
+     properties = { floating = true, tag = tags[1][5]} },
+    { rule = { class = "darktable" },
      properties = { floating = true, tag = tags[1][5]} },
     --}}}}
     --{{{{ Programas de descarga escritorio 6 "Download"
@@ -564,12 +651,22 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- }}}
 
 
+
+
+
 ---{{{{{{{ BARRA INFERIOR Y WIDGETS }}}}}}}
+
+
+--{{{ Tiempo de con el equipo encendido
+uptimewidget = wibox.widget.textbox()
+vicious.register(uptimewidget, vicious.widgets.uptime, '<span color="#78A4FF">$1 Dias $2 Horas</span>')
+
+--}}}
 
 --{{{
 --Información del systema operativo
 kernel_usu = wibox.widget.textbox()
-vicious.register(kernel_usu, vicious.widgets.os,'Kernel: <span color="#b0e2ff">$1 $2</span> ')
+vicious.register(kernel_usu, vicious.widgets.os,'<span color="#78A4FF">$1 $2</span>')
 --
 --}}}
 
@@ -582,50 +679,57 @@ vicious.cache(vicious.widgets.cpuinf)
 cpufreq = wibox.widget.textbox()
 vicious.register(cpufreq, vicious.widgets.cpuinf,
 function(widget, args)
-return string.format(" cpu: <span color=\"#ffa500\">%1.1f Ghz</span>  ",
+return string.format('<span color="#78A4FF">%1.1f Ghz</span> ',
 args["{cpu0 ghz}"])
 end, 300)
 
 -- core 0 %
 cpupct = wibox.widget.textbox()
-vicious.register(cpupct, vicious.widgets.cpu, "<span color=\"#ffa500\">($2% Cpu-0)  ($3% Cpu-1) </span> ", 2)
+vicious.register(cpupct, vicious.widgets.cpu, ' <span color="#78A4FF">($2% Cpu-0)  ($3% Cpu-1) </span>', 2)
 
 -- }}}
--- Initialize widget
-cpuwidget = awful.widget.graph()
--- Graph properties
-cpuwidget:set_width(50)
-cpuwidget:set_background_color("#494B4F")
-cpuwidget:set_color({ type = "linear", from = { 0, 0 }, to = { 10,0 }, stops = { {0, "#FF5656"}, {0.5, "#88A175"}, 
-                    {1, "#AECF96" }}})
--- Register widget
-vicious.register(cpuwidget, vicious.widgets.cpu, "$1")
-
 
 -- {{{ MEMORIA
 -- ram used
+memicon = wibox.widget.imagebox(beautiful.widget_mem)
 memused = wibox.widget.textbox()
-vicious.register(memused, vicious.widgets.mem, ' Ram: <span color="green">$1% total: $3MB </span>', 5)
+vicious.register(memused, vicious.widgets.mem, 'R <span color="#78A4FF">$1% / $3MB </span>', 5)
 -- swap used
 swapused = wibox.widget.textbox()
-vicious.register(swapused, vicious.widgets.mem, ' Swap: <span color="green">$6% total: $7MB</span>', 5)
+vicious.register(swapused, vicious.widgets.mem, 'Sw <span color="#78A4FF">$6% / $7MB</span>', 5)
 --- }}}
 
 -- {{{ NETWORK RED
 -- net speed
-netwidget = wibox.widget.textbox()
-vicious.register(netwidget, vicious.widgets.net, ' Net: <span color="#b0e2ff">${enp2s0 up_kb} kb up  ${enp2s0 down_kb} kb Down</span>',2)
+
+netupicon = wibox.widget.imagebox(beautiful.widget_netup)
+	
+netdownicon = wibox.widget.imagebox(beautiful.widget_netdown)
+
+netwidgetdown = wibox.widget.textbox()
+vicious.register(netwidgetdown, vicious.widgets.net, '<span color="#87af5f">${enp2s0 down_kb}</span> ][ <span color="#e54c62">${enp2s0 up_kb}</span>' , 1)
+
 -- }}}
 
--- {{{ CLOCK - RELOJ
-clockwidget = wibox.widget.textbox()
-vicious.register(clockwidget, vicious.widgets.date, ' <span color="#8b8970"> %H:%M - %d/%m/20%y </span> ')
--- }}}
 
 --{{{ File System Space -- Unidades de disco 
 -- File System usage
-fswidget = wibox.widget.textbox()
-vicious.register(fswidget, vicious.widgets.fs, ' HDD: <span color="green"> /home ${/home avail_gb}G | / ${/ avail_gb}G | /1TG ${/1TG avail_gb}G | /2TG ${/2TG avail_gb}G | /discoC ${/discoC avail_gb}G </span>', 60)
+diskicon = wibox.widget.imagebox(beautiful.widget_disk)
+
+fswidget0 = wibox.widget.textbox()
+vicious.register(fswidget0, vicious.widgets.fs, '<span color="#78A4FF">/home ${/home avail_gb}G</span>', 60)
+
+fswidget1 = wibox.widget.textbox()
+vicious.register(fswidget1, vicious.widgets.fs, '<span color="#78A4FF">/ ${/ avail_gb}G</span>', 60)
+
+fswidget2 = wibox.widget.textbox()
+vicious.register(fswidget2, vicious.widgets.fs, '<span color="#78A4FF">/1TG ${/1TG avail_gb}G</span>', 60)
+
+fswidget3 = wibox.widget.textbox()
+vicious.register(fswidget3, vicious.widgets.fs, '<span color="#78A4FF">/2TG ${/2TG avail_gb}G</span>', 60)
+
+fswidget4 = wibox.widget.textbox()
+vicious.register(fswidget4, vicious.widgets.fs, '<span color="#78A4FF">/discoC ${/discoC avail_gb}G</span> ', 60)
 --}}}
 
 
@@ -634,28 +738,54 @@ mystatebar = awful.wibox({ position = "bottom", screen = s})
 
 local mb_right_layout = wibox.layout.fixed.horizontal()
 mb_right_layout:add(left_separator)
+
+mb_right_layout:add(memicon)
 mb_right_layout:add(memused)
+mb_right_layout:add(memicon)
 mb_right_layout:add(swapused)
+
 mb_right_layout:add(right_separator)
 mb_right_layout:add(left_separator)
-mb_right_layout:add(netwidget)
+
+mb_right_layout:add(netdownicon)
+mb_right_layout:add(netwidgetdown)
+mb_right_layout:add(netupicon)
+
+
 mb_right_layout:add(right_separator)
 mb_right_layout:add(left_separator)
-mb_right_layout:add(clockwidget)
+
+
+mb_right_layout:add(uptimewidget)
 mb_right_layout:add(right_separator)
 
 
 local mb_left_layout = wibox.layout.fixed.horizontal()
 mb_left_layout:add(left_separator)
+
 mb_left_layout:add(kernel_usu)
+
 mb_left_layout:add(right_separator)
 mb_left_layout:add(left_separator)
+
 mb_left_layout:add(cpufreq)
 mb_left_layout:add(cpupct)
-mb_left_layout:add(cpuwidget)
+
+
 mb_left_layout:add(right_separator)
 mb_left_layout:add(left_separator)
-mb_left_layout:add(fswidget)
+
+mb_left_layout:add(diskicon)
+mb_left_layout:add(fswidget0)
+mb_left_layout:add(diskicon)
+mb_left_layout:add(fswidget1)
+mb_left_layout:add(diskicon)
+mb_left_layout:add(fswidget2)
+mb_left_layout:add(diskicon)
+mb_left_layout:add(fswidget3)
+mb_left_layout:add(diskicon)
+mb_left_layout:add(fswidget4)
+
 mb_left_layout:add(right_separator)
 
 local mb_layout = wibox.layout.align.horizontal()
@@ -665,27 +795,6 @@ mb_layout:set_right(mb_right_layout)
 mystatebar:set_widget(mb_layout)
 --}}}
 
-
---{{{ Programas al inicio.
---No ejecuta dos veces los programas con el mismo nombre
-
- function run_once(pro)
-  findme = pro
-  firstspace = pro:find(" ")
-  if firstspace then
-    findme = pro:sub(0, firstspace-1)
-  end
-  awful.util.spawn_with_shell("pgrep -u $USER -x " .. findme .. " > /dev/null || (" .. pro .. ")")
-end
-
---run_once("conky")    --{{{ Monitoreo de la activida del PC }}}
-run_once("parcellite") --{{{ Gestor de Portepapeles }}}
-run_once("dropboxd")   --{{{ Sincronización de disco Dropbox}}}
-run_once("udisksvm")   --{{{ Automontado de particiones }}}
-run_once("orage")      --{{{ Calendario }}}
-run_once("retrovol")   --{{{ Control de Volumen }}}
-run_once("xscreensaver") --{{{ Salvapantallas }}}
-run_once("weatherboy -l 765099 -u c -a") --{{{ El  tiempo en ponferrada León}}}
 
 --{{{ Otra manera de arrancar programas al inicio }}}
 
